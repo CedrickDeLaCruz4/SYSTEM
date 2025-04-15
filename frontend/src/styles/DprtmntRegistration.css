@@ -1,0 +1,138 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+.departmentList{
+    background-color: white;
+    max-width: fit-content;
+    margin: 10%;
+    padding: 0;
+    max-width: 900px;
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 1px 1px 10px 1px rgba(0, 0, 0, 0.1);
+}
+
+.header{
+    background-color: #6D2323;
+    padding: 10px 0;
+    color: white;
+    display: flex;
+    font-weight: 600;
+    justify-content: center;
+    position: relative;
+    align-items: center;
+}
+
+.plusIcon{
+    position: absolute;
+    right: 2%;
+    cursor: pointer;
+}
+
+.cancelIcon{
+    position: absolute;
+    top: 27%;
+    cursor: pointer;
+}
+
+.dialogTitle{
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.dialogTitle > *{
+    position: absolute;
+    right: 4%;
+}
+
+
+.main{
+    padding: 10px 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.department .items,
+.department .name{
+    display: flex;
+    align-items: center;
+}
+
+.department .items i,
+.course .items i, .items{
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.department .name{
+    max-width: 675px;
+    width: 100%;
+}
+
+.course{
+    display: flex;
+    flex-direction: column;
+}
+
+.curriculum .items .name{
+    max-width: 840px;
+}
+
+.room > * {
+    cursor: pointer;
+}
+
+.forDepartment, .forCourse{
+    display: flex;
+}
+
+.textField{
+    display: flex;
+    flex-direction: column;
+}
+
+.textField label{
+    font-size: 0.9rem;
+}
+
+.textField input{
+    outline: none;
+    height: 2rem;
+    padding: 0rem 0.5rem;
+    font-family: 'Poppins', sans-serif;
+}
+
+.textField #dep_name{
+    width: 18rem;
+    margin-right: 1rem;
+}
+
+.DialogContent{
+    margin: 1rem 0rem;
+}
+
+.courseDialogTitle{
+    font-size: 1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.iconContainer{
+    display: flex;
+    gap: 2%;
+}
+
+.iconContainer > *{
+    cursor: pointer;
+}
+
+.title{
+    font-size: 0.9rem;
+    font-weight: 400;
+    margin: 0.5rem 0rem 0.1rem 0rem;
+}

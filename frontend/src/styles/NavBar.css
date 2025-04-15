@@ -1,0 +1,79 @@
+
+.NavBar{
+    overflow: hidden;
+    display: flex;
+    padding: 15px 20px;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #6D2323;
+}
+
+.LogoContainer {
+    display: flex;
+    align-items: center;
+}
+
+.LogoImage{
+    background-color: white;
+    height: 50px;
+    border-radius: 50%;
+}
+
+.LogoImage img{
+    width: 50px;
+}
+
+.LogoTitle{
+    display: flex;
+    flex-direction: column;
+    color: white;
+    margin-left: 15px;
+}
+
+.LogoTitle span:first-child{
+    font-size: 25px;
+    margin-top: -3px;
+    font-weight: 600;
+    letter-spacing: -1px;
+}
+
+.LogoTitle span:last-child{
+    font-size: 15px;
+    margin-top: -5px;
+    color: rgba(255, 255, 255, 0.878);
+}
+
+.NavBarItems{
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.NavBarItems > *{
+    color: white;
+}
+
+.MenuButton{
+    cursor: pointer;
+}
+
+.MenuButton:hover{
+    color: white;
+    text-decoration: underline;
+}
+
+.ButtonLink{
+    background-color: #FEF9E1;
+    padding: 10px 20px;
+    color: #ae2020;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: ease-in 0.1s;
+}
+
+.ButtonLink:hover{
+    transform: scale(0.9);
+    background-color: #A31D1D;
+    border: white 1px solid;
+    color: white;
+}
