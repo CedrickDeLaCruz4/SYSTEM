@@ -6,7 +6,7 @@ import '../styles/NavBar.css';
 const Navbar = () => {
     return(
         <div className="NavBar">
-            <Link to={'/home'}>
+            <Link to={'/dashboard'}>
             <div className="LogoContainer">
                 <div className="LogoImage">
                     <img src={Logo} alt="" />

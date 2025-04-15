@@ -281,6 +281,7 @@ app.get('/get_course', (req, res) => {
     });
 });
 
+// PROGRAM TAGGING TABLE
 app.post('/program_tagging', (req, res) => {
     const {curriculum_id, year_level_id, semester_id, course_id} = req.body;
 
@@ -358,6 +359,50 @@ app.get('/get_room', (req, res) => {
         res.status(200).send(result);
     });
 });
+
+// SECTIONS
+app.post('/section_table', (req, res) => {
+    const { description } = req.body;
+    if (!description) {
+      return res.status(400).send('Description is required');
+    }
+  
+    const query = 'INSERT INTO section_table (section_description) VALUES (?)';
+    db3.query(query, [description], (err, result) => {
+      if (err) {
+        console.error('Error inserting section:', err);
+        return res.status(500).send('Internal Server Error');
+      }
+      res.status(201).send(result);
+    });
+  });
+
+// SECTIONS LIST
+app.get('/section_table', (req, res) => {
+    const query = 'SELECT * FROM section_table';
+    db3.query(query, (err, result) => {
+      if (err) {
+        console.error('Error fetching sections:', err);
+        return res.status(500).send('Internal Server Error');
+      }
+      res.status(200).send(result);
+    });
+  });
+
+// DEPARTMENT SECTIONS
+app.post('/department_section', (req, res) => {
+    const { curriculum_id, section_id } = req.body;
+
+    const query = 'INSERT INTO dprmnt_section (curriculum_id, section_id, dsstat) VALUES (?,?,0)';
+    db3.query(query, [curriculum_id, section_id], (err, result) => {
+      if (err) {
+        console.error('Error inserting section:', err);
+        return res.status(500).send('Internal Server Error');
+      }
+      res.status(201).send(result);
+    });
+  });
+
 
 /* ------------------------------------------- MIDDLE PART OF THE SYSTEM ----------------------------------------------*/
 

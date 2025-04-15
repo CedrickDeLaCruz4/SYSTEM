@@ -13,6 +13,9 @@ const Sidebar = () => {
           <Link to="/course_registration">Course Registration</Link>
         </li>
         <li className="hover:bg-gray-700 p-3 rounded">
+          <Link to="/course_management">Course Management</Link>
+        </li>
+        <li className="hover:bg-gray-700 p-3 rounded">
           <Link to="/department_registration">Department Registration</Link>
         </li>
         <li className="hover:bg-gray-700 p-3 rounded">
