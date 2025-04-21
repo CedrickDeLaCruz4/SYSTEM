@@ -10,70 +10,67 @@ const ProgramTagging = () => {
     });
 
     const [courseList, setCourseList] = useState([]);
-        // PROGRAM TAGGING PANEL
-        const [yearLevelList, setYearlevelList] = useState([]);
-        // PROGRAM TAGGING PANEL
-        const [semesterList, setSemesterList] = useState([]);
-        // PROGRAM TAGGING PANEL
-        const [curriculumList, setCurriculumList] = useState([]);
+    const [yearLevelList, setYearlevelList] = useState([]);
+    const [semesterList, setSemesterList] = useState([]);
+    const [curriculumList, setCurriculumList] = useState([]);
 
-        const fetchYearLevel = async () => {
-            try {
-              const response = await axios.get('http://localhost:5000/get_year_level');
-              setYearlevelList(response.data);
-            } catch (err) {
-              console.log(err);
-            }
-          };
-      
-          // PROGRAM TAGGING PANEL
-          const fetchSemester = async () => {
-              try {
-                const response = await axios.get('http://localhost:5000/get_semester');
-                setSemesterList(response.data);
-              } catch (err) {
-                console.log(err);
-              }
-          };
-      
-          // PROGRAM TAGGING PANEL
-          const fetchCurriculum = async () => {
-            try {
-              const response = await axios.get('http://localhost:5000/get_curriculum');
-              setCurriculumList(response.data);
-            } catch (err) {
-              console.log(err);
-            }
-          };
-        
-          // PROGRAM TAGGING PANEL
-          const fetchCourse = async () => {
-            try {
-              const response = await axios.get('http://localhost:5000/get_course');
-              setCourseList(response.data);
-            } catch (err) {
-              console.log(err);
-            }
-          };
-      
-          //FOR PROGRAM TAGGING AND INSERT CURRICULUM
-          useEffect(() => {
-              // PROGRAM TAGGING
-              fetchCourse();
-              fetchYearLevel();
-              fetchSemester();
-              fetchCurriculum();
-          }, []);
+    const fetchYearLevel = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/get_year_level');
+        setYearlevelList(response.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
 
-        const handleChangesForEverything = (e) => {
-            const { name, value } = e.target;
-            // PROGRAM TAGGING PANEL
+    // PROGRAM TAGGING PANEL
+    const fetchSemester = async () => {
+        try {
+          const response = await axios.get('http://localhost:5000/get_semester');
+          setSemesterList(response.data);
+        } catch (err) {
+          console.log(err);
+        }
+    };
+
+    // PROGRAM TAGGING PANEL
+    const fetchCurriculum = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/get_curriculum');
+        setCurriculumList(response.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    // PROGRAM TAGGING PANEL
+    const fetchCourse = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/courseList');
+        setCourseList(response.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    //FOR PROGRAM TAGGING AND INSERT CURRICULUM
+    useEffect(() => {
+        fetchCourse();
+        fetchYearLevel();
+        fetchSemester();
+        fetchCurriculum();
+    }, []);
+
+    const handleChangesForEverything = (e) => {
+        const { name, value } = e.target;
+            
         setProgTag(prev => ({
             ...prev,
             [name]: value
         }));
 
     };
+
     const handleInsertingProgTag = async () => {
         if (!progTag.curriculum_id ||
             !progTag.year_level_id ||
@@ -90,6 +87,7 @@ const ProgramTagging = () => {
             console.log(err);
         }
     }
+    
     return(
         <div>
             <h1>Program and Course Management</h1>
@@ -98,6 +96,7 @@ const ProgramTagging = () => {
                 <h1>Program Tagging Panel</h1>
                 <div>
                     <select name="curriculum_id" id="curriculum_id" value={progTag.curriculum_id} onChange={handleChangesForEverything}>
+                        <option value="">Choose Curriculum</option>
                         {curriculumList.map((curriculumList)=> (
                             <option key={curriculumList.curriculum_id} value={curriculumList.curriculum_id}>{curriculumList.year_description}-{curriculumList.program_description} | {curriculumList.curriculum_id}</option>
                         ))}
@@ -105,6 +104,7 @@ const ProgramTagging = () => {
                 </div>
                 <div>
                     <select name="course_id" id="course_id" value={progTag.course_id} onChange={handleChangesForEverything}>
+                        <option value="">Choose Course</option>
                         {courseList.map((course)=> (
                             <option key={course.course_id} value={course.course_id}>{course.course_code}-{course.course_description} | {course.course_id}</option>
                         ))}
@@ -112,6 +112,7 @@ const ProgramTagging = () => {
                 </div>
                 <div>
                     <select name="year_level_id" id="year_level_id" value={progTag.year_level_id} onChange={handleChangesForEverything}>
+                        <option value="">Choose Year Level</option>
                         {yearLevelList.map((year)=> (
                             <option key={year.year_level_id} value={year.year_level_id}>{year.year_level_description}</option>
                         ))}
@@ -119,6 +120,7 @@ const ProgramTagging = () => {
                 </div>
                 <div>
                     <select name="semester_id" id="semester_id" value={progTag.semester_id} onChange={handleChangesForEverything}>
+                        <option value="">Choose Semester</option>
                         {semesterList.map((semester)=> (
                             <option key={semester.semester_id} value={semester.semester_id}>{semester.semester_description}</option>
                         ))}

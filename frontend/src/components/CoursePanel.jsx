@@ -2,18 +2,17 @@ import React, {useState, useEffect} from "react";
 import axios from 'axios';
 
 const CoursePanel = () => {
-     // COURSE PANEL FORM
+
     const [course, setCourse] = useState({
         course_code: '',
         course_description: '',
         course_unit: '',
         lab_unit: '',
-     });
+    });
     
-     const handleChangesForEverything = (e) => {
+    const handleChangesForEverything = (e) => {
         const { name, value } = e.target;
-        
-        // COURSE PANEL FORM
+    
         setCourse((prev) => ({
             ...prev,
             [name]: value,
@@ -33,6 +32,7 @@ const CoursePanel = () => {
         console.log(err);
         }
     };
+    
      return (
         <div>
                 <h1>Course Panel Form</h1>

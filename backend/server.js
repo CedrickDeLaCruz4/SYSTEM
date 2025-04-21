@@ -96,6 +96,8 @@ app.get('/admitted_users', (req, res) => {
     });
 });
 
+// SEARCH USERS
+
 //TRANSFER ENROLLED USER INTO ENROLLMENT
 app.post('/transfer', async (req, res) => {
     const { person_id } = req.body;
@@ -178,6 +180,45 @@ app.get('/enrolled_users', (req, res) => {
     });
 });
 
+// SEARCH ENROLLED USERS (NEW!!)
+app.get('/search_user', (req, res) => {
+    const { studentID } = req.query;
+    
+    const query = `
+        SELECT 
+            snt.id AS student_id,
+            snt.person_id,
+            pt.first_name,
+            pt.middle_name,
+            pt.last_name,
+            ct.curriculum_id,
+            yt.year_description,
+            prt.program_description
+        FROM 
+            earist_sis.student_numbering_table snt
+        INNER JOIN 
+            enrollment.person_table pt ON snt.person_id = pt.person_id
+        INNER JOIN 
+            earist_sis.student_curriculum_table sct ON sct.student_numbering_id = snt.id
+        INNER JOIN 
+            earist_sis.curriculum_table ct ON ct.curriculum_id = sct.curriculum_id
+        INNER JOIN 
+            earist_sis.year_table yt ON yt.year_id = ct.year_id
+        INNER JOIN 
+            earist_sis.program_table prt ON prt.program_id = ct.program_id
+        WHERE 
+            snt.id = ?
+    `;
+
+    db3.query(query, [studentID], (err, result) => {
+        if (err) return res.status(500).send({ message: 'Database error', error: err });
+        if (result.length === 0) return res.status(404).send({ message: 'User not found' });
+        res.status(200).send(result[0]);
+    });
+});
+
+
+
 // DEPARTMENT CREATION
 app.post('/department', (req, res) => {
     const { dep_name, dep_code } = req.body;
@@ -197,6 +238,27 @@ app.get('/get_department', (req, res) => {
         res.status(200).send(result);
     });
 });
+
+// UPDATE DEPARTMENT (SUPERADMIN)
+app.put('/update_department/id', (req, res) => {
+    const {id, dep_name, dep_code} = req.body;
+    const updateQuery = 'UPDATE '
+
+    db3.query(updateQuery, [id, dep_name, dep_code], (err, result) => {
+        if (err) return res.status(500).send(err);
+        res.status(200).send(result); 
+    })
+})
+
+// DELETE DEPARTMENT (SUPERADMIN)
+app.delete('/delete_department/id', (req, res) => {
+    const {id} = req.query;
+    const deleteQuery = 'DELETE'
+    db3.query(deleteQuery, [id], (err, result) => {
+        if (err) return res.status(500).send(err);
+        res.status(200).send(result); 
+    })
+})
 
 // PROGRAM CREATION
 app.post('/program', (req, res) => { 
@@ -219,36 +281,58 @@ app.get('/get_program', (req, res) => {
     })
 });
 
+// UPDATE PROGRAM (SUPERADMIN)
+app.put('/update_program/id', (req, res) => {
+    const {id, name, code} = req.body;
+    const updateQuery = 'UPDATE '
+
+    db3.query(updateQuery, [id, name, code], (err, result) => {
+        if (err) return res.status(500).send(err);
+        res.status(200).send(result); 
+    })
+})
+
+// DELETE PROGRAM (SUPERADMIN)
+app.delete('/delete_program/id', (req, res) => {
+    const {id} = req.query;
+
+    const deleteQuery = 'DELETE'
+    db3.query(deleteQuery, [id], (err, result) => {
+        if (err) return res.status(500).send(err);
+        res.status(200).send(result); 
+    })
+})
+
 // CURRICULUM CREATION
 app.post('/curriculum', (req, res) => {
+    const {year_id, program_id} = req.body;
 
+    const insertQuery = 'INSERT INTO curriculum_table(year_id, program_id) VALUES (?,?)';
+
+    db3.query(insertQuery, [year_id, program_id], (err, result) => {
+        if (err) return res.status(500).send(err);
+        res.status(200).send(result); 
+    })
 })
 
 // CURRICULUM LIST
-app.get("/get_curriculum", (req, res) => {
-    const getQuery = `
-        SELECT 
-            p.program_description, 
-            p.program_code, 
-            y.year_description, 
-            d.dprtmnt_name, 
-            ct.curriculum_id,
-            dct.dprtmnt_id,
-            dct.dprtmnt_curriculum_id
-        FROM 
-            program_table p
-        INNER JOIN curriculum_table ct ON p.program_id = ct.program_id
+app.get('/get_curriculum', (req, res) => {
+    const readQuery = `
+        SELECT ct.*, p.*, y.* 
+        FROM curriculum_table ct 
+        INNER JOIN program_table p ON ct.program_id = p.program_id
         INNER JOIN year_table y ON ct.year_id = y.year_id
-        INNER JOIN dprtmnt_curriculum_table dct ON ct.curriculum_id = dct.curriculum_id
-        INNER JOIN dprtmnt_table d ON dct.dprtmnt_id = d.dprtmnt_id;
     `;
 
-    db3.query(getQuery, (err, result) => {
-        console.error("Database: ", err);
+    db3.query(readQuery, (err, result) => {
         if (err) return res.status(500).send(err);
-        res.status(200).send(result);
+        res.status(200).send(result); 
     });
 });
+
+// UPDATE CURRICULUM (SUPERADMIN)
+
+// DELETE CURRICULUM (SUPERADMIN)
 
 // COURSE TABLE
 app.post('/adding_course', (req, res) => {
@@ -261,7 +345,36 @@ app.post('/adding_course', (req, res) => {
     });
 });
 
-// COURSE LIST
+// READ COURSE
+app.get('/courselist', (req, res) => {
+    const readQuery = 'SELECT * FROM course_table';
+    db3.query(readQuery, (err, result) => {
+        if (err) return res.status(500).send(err);
+        res.status(200).send(result);
+    });
+});
+
+// UPDATE COURSE (SUPERADMIN)
+
+// DELETE COURSE (SUPERADMIN)
+
+// GET COURSES BY CURRICULUM ID
+app.get('/get_courses_by_curriculum/:curriculum_id', (req, res) => {
+    const { curriculum_id } = req.params;
+    
+    const query = `
+        SELECT c.* FROM program_tagging_table pt
+        INNER JOIN course_table c ON pt.course_id = c.course_id
+        WHERE pt.curriculum_id = ?
+    `;
+
+    db3.query(query, [curriculum_id], (err, result) => {
+        if (err) return res.status(500).send(err);
+        res.status(200).send(result);
+    });
+});
+
+// COURSE TAGGING LIST
 app.get('/get_course', (req, res) => {
     const getCourseQuery = `
         SELECT 
@@ -319,6 +432,58 @@ app.get('/get_semester', (req, res) => {
     });
 });
 
+app.post('/enrolled_subject', (req, res) => {
+    const {curriculum_id, course_id, student_number_id} = req.body;
+    
+    const insertQuery = 'INSERT INTO enrolled_subject (curriculum_id, course_id, student_number, active_school_year_id) VALUES (?, ?, ?, NULL)';
+
+    db3.query(insertQuery, [curriculum_id, course_id, student_number_id], (err,result) => {
+        if (err) return res.status(500).send(err);
+        res.status(200).send(result);
+    });
+});
+
+
+app.get('/enrolled_subject_list', (req, res) => {
+    const studentID = req.query.studentID;
+
+    const sql = `
+        SELECT 
+            es.id,
+            c.course_id,
+            c.course_code,
+            c.course_description
+        FROM 
+            enrolled_subject es
+        INNER JOIN 
+            course_table c ON es.course_id = c.course_id
+        WHERE 
+            es.student_number = ?
+    `;
+
+    db3.query(sql, [studentID], (err, results) => {
+        if (err) return res.status(500).json({ error: 'Server error' });
+        res.status(200).send(results);
+    });
+});
+
+app.delete('/remove_enrolled_subjects/:id', (req, res) => {
+    const {id} = req.params;
+
+    const deleteQuery = 'DELETE FROM enrolled_subject WHERE id = ?'
+
+    db3.query(deleteQuery, [id], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: 'Error removing subject.' });
+        }
+        res.status(200).json(result);
+    });
+});
+
+
+
+
 // ROOM CREATION
 app.post('/room', (req, res) => {
     const { room_name, department_id } = req.body;
@@ -360,6 +525,10 @@ app.get('/get_room', (req, res) => {
     });
 });
 
+// UPDATE ROOM (SUPERADMIN)
+
+// DELETE ROOM (SUPERADMIN)
+
 // SECTIONS
 app.post('/section_table', (req, res) => {
     const { description } = req.body;
@@ -388,6 +557,10 @@ app.get('/section_table', (req, res) => {
       res.status(200).send(result);
     });
   });
+
+// UPDATE SECTIONS (SUPERADMIN)
+
+// DELETE SECTIONS (SUPERADMIN)
 
 // DEPARTMENT SECTIONS
 app.post('/department_section', (req, res) => {
@@ -446,8 +619,9 @@ app.get('/get_prof', (req, res) => {
     });
 });
 
+// UPDATE PROFESSOR (SUPERADMIN)
 
-// COURSE TAGGING
+// DELETE PROFESSOR (SUPERADMIN)
 
 // FUTURE WORK
 //I will create an api for user to sort the data in ascending or desceding order

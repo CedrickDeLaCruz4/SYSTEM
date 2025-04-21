@@ -5,7 +5,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import '../styles/Container.css';
 import Logo from '../assets/Logo.png';
 
-const Login = () => {
+const Login = ({ setIsAuthenticated }) => {
     const [usersData, setUserData] = useState({
         email: '',
         password: '',
@@ -22,7 +22,7 @@ const Login = () => {
 
     const handleLogin = async (event) => {
         event.preventDefault();
-
+        
         if (!usersData.email || !usersData.password) {
             setErrorMessage("Please fill all required credentials");
             return;
@@ -46,7 +46,7 @@ const Login = () => {
                     const decoded = JSON.parse(atob(data.token.split('.')[1]));
                     console.log('Decoded JWT:', decoded);
 
-                    // ✅ Redirect to dashboard
+                    setIsAuthenticated(true); 
                     navigate('/dashboard');
                 } else {
                     setErrorMessage('No token received from the server.');

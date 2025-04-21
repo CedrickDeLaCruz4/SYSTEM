@@ -3,8 +3,18 @@
   scrollbar-width: none;
 }
 
-main{
+.app-format{
+  display: flex;
   height: 100%;
+}
+
+article{
+  width: 25%;
+}
+
+main{
+  width: 100%;
+  min-width: 75%;
 }
 /* 
 .logo {

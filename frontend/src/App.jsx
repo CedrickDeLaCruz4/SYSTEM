@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import './App.css';
 import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import Register from './components/Register';
@@ -22,58 +22,77 @@ import CurriculumPanel from './components/CurriculumPanel';
 import { Dashboard } from '@mui/icons-material';
 import SectionPanel from './components/SectionPanel';
 import DepartmentSection from './components/DepartmentSection';
+import ProtectedRoute from './components/ProtectedRoute';
+import CourseTagging from './components/CourseTagging';
 
+  function App() {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+    const fetchAuthentication = () => {
+      const token = localStorage.getItem('token');
+      if(token !== null){
+        setIsAuthenticated(true);
+      }
+    }
 
-function App() {
+    useEffect(() => {
+      fetchAuthentication();
+    }, []);
 
-  //Set the default font of entire app into poppins
-  const theme = createTheme({
-    typography: {
-        fontFamily: "Poppins, sans-serif",
-    },
-  });
+    const theme = createTheme({
+      typography: {
+          fontFamily: "Poppins, sans-serif",
+      },
+    });
 
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
 
-  return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+        <Router>
+          <header>
+            <Navbar isAuthenticated={isAuthenticated}/>
+          </header>
 
-      <Router>
-        <header>
-          <Navbar />
-        </header>
-        <article>
-          <SideBar />
-        </article>
-        <main>
-          <Routes>
-           <Route path="/register" element={<Register />} />
-           <Route path="/" element={<Login />}/>
-           <Route path="/login" element={<Login />}/>
-           <Route path="/dashboard" element={<Dashboard />}/>
-           <Route path="/room_registration" element={<DepartmentRoom/>}/>
-           <Route path="/course_registration" element={<DepartmentCourse/>}/>
-           <Route path="/course_management" element={<CourseManagement/>}/>
-           <Route path="/program_tagging" element={<ProgramTagging/>}/>
-           <Route path="/course_panel" element={<CoursePanel/>}/>
-           <Route path="/program_panel" element={<ProgramPanel/>}/>
-           <Route path="/department_section_panel" element={<DepartmentSection/>}/>
-           <Route path="/curriculum_panel" element={<CurriculumPanel/>}/>
-           <Route path="/department_registration" element={<DepartmentRegistration/>}/>
-           <Route path="/section_panel" element={<SectionPanel/>}/>
-           <Route path="/professor_registration" element={<DepartmentProf/>}/>
-           <Route path="/admission_dashboard" element={<AdmissionDashboard />} />
-           <Route path="/enrollment_dashboard" element={<EnrolledDashboard />} />
-           <Route path="/enrolled_student" element={<StudentPage />} />
-          </Routes>
-        </main>
-        <footer>
-          <Footer />
-        </footer>
-      </Router>
-    </ThemeProvider>
-  )
-}
+          <div className="app-format">
+            {isAuthenticated && (
+              <article>
+                <SideBar setIsAuthenticated={setIsAuthenticated} />
+              </article>
+            )}
 
-export default App
+            <main>
+              <Routes>
+                <Route path="/register" element={<Register />} />
+                <Route path="/" element={<Login setIsAuthenticated={setIsAuthenticated}/>}/>
+                <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated}/>}/>
+                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>}/>
+                <Route path="/room_registration" element={<ProtectedRoute><DepartmentRoom/></ProtectedRoute>}/>
+                <Route path="/course_tagging" element={<ProtectedRoute><CourseTagging /></ProtectedRoute>}/>
+                <Route path="/course_registration" element={<ProtectedRoute><DepartmentCourse/></ProtectedRoute>}/>
+                <Route path="/course_management" element={<ProtectedRoute><CourseManagement/></ProtectedRoute>}/>
+                <Route path="/program_tagging" element={<ProtectedRoute><ProgramTagging/></ProtectedRoute>}/>
+                <Route path="/course_panel" element={<ProtectedRoute><CoursePanel/></ProtectedRoute>}/>
+                <Route path="/program_panel" element={<ProtectedRoute><ProgramPanel/></ProtectedRoute>}/>
+                <Route path="/department_section_panel" element={<ProtectedRoute><DepartmentSection/></ProtectedRoute>}/>
+                <Route path="/curriculum_panel" element={<ProtectedRoute><CurriculumPanel/></ProtectedRoute>}/>
+                <Route path="/department_registration" element={<ProtectedRoute><DepartmentRegistration/></ProtectedRoute>}/>
+                <Route path="/section_panel" element={<ProtectedRoute><SectionPanel/></ProtectedRoute>}/>
+                <Route path="/professor_registration" element={<ProtectedRoute><DepartmentProf/></ProtectedRoute>}/>
+                <Route path="/admission_dashboard" element={<ProtectedRoute><AdmissionDashboard /></ProtectedRoute>} />
+                <Route path="/enrollment_dashboard" element={<ProtectedRoute><EnrolledDashboard /></ProtectedRoute>} />
+                <Route path="/enrolled_student" element={<ProtectedRoute><StudentPage /></ProtectedRoute>} />
+              </Routes>
+            </main>
+          </div>
+
+            <footer>
+              <Footer />
+            </footer>
+          
+        </Router>
+      </ThemeProvider>
+    )
+  }
+
+  export default App
