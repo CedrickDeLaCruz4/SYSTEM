@@ -24,6 +24,9 @@ import SectionPanel from './components/SectionPanel';
 import DepartmentSection from './components/DepartmentSection';
 import ProtectedRoute from './components/ProtectedRoute';
 import CourseTagging from './components/CourseTagging';
+import LoginProf from './components/LoginProf';
+import RegisterProf from './components/RegisterProf';
+import FacultyDashboard from './components/FacultyDashboard';
 
   function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -64,9 +67,12 @@ import CourseTagging from './components/CourseTagging';
             <main>
               <Routes>
                 <Route path="/register" element={<Register />} />
+                <Route path="/register_prof" element={<RegisterProf />} />
                 <Route path="/" element={<Login setIsAuthenticated={setIsAuthenticated}/>}/>
                 <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated}/>}/>
+                <Route path="/login_prof" element={<LoginProf setIsAuthenticated={setIsAuthenticated}/>}/>
                 <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>}/>
+                <Route path="/faculty_dashboard" element={<FacultyDashboard />}/>
                 <Route path="/room_registration" element={<ProtectedRoute><DepartmentRoom/></ProtectedRoute>}/>
                 <Route path="/course_tagging" element={<ProtectedRoute><CourseTagging /></ProtectedRoute>}/>
                 <Route path="/course_registration" element={<ProtectedRoute><DepartmentCourse/></ProtectedRoute>}/>

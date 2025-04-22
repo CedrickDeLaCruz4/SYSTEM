@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 02, 2025 at 12:41 PM
+-- Generation Time: Apr 21, 2025 at 09:17 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -62,10 +62,10 @@ CREATE TABLE `person_table` (
 --
 
 INSERT INTO `person_table` (`person_id`, `first_name`, `middle_name`, `last_name`) VALUES
-(1, NULL, NULL, NULL),
-(2, NULL, NULL, NULL),
-(3, NULL, NULL, NULL),
-(4, NULL, NULL, NULL);
+(1, 'James', 'Mendoza', 'Fernandez'),
+(2, 'John', 'Bord', 'Doe'),
+(3, 'Ayan', 'Gan', 'Matrona'),
+(4, 'Sheila', 'Gonsales', 'Rodriguez');
 
 -- --------------------------------------------------------
 

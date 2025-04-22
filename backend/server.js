@@ -5,7 +5,7 @@ const cors = require('cors');
 const webtoken = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const bodyparser = require('body-parser');
-
+require("dotenv").config();
 const app = express();
 
 //MIDDLEWARE
@@ -41,7 +41,7 @@ const db3 = mysql.createPool({
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'earist_sis',
+    database: 'cmu_mis',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
@@ -95,8 +95,6 @@ app.get('/admitted_users', (req, res) => {
         res.status(200).send(result);
     });
 });
-
-// SEARCH USERS
 
 //TRANSFER ENROLLED USER INTO ENROLLMENT
 app.post('/transfer', async (req, res) => {
@@ -216,8 +214,6 @@ app.get('/search_user', (req, res) => {
         res.status(200).send(result[0]);
     });
 });
-
-
 
 // DEPARTMENT CREATION
 app.post('/department', (req, res) => {
@@ -347,7 +343,7 @@ app.post('/adding_course', (req, res) => {
 
 // READ COURSE
 app.get('/courselist', (req, res) => {
-    const readQuery = 'SELECT * FROM course_table';
+    const readQuery = 'SELECT * FROM program_tagging_table as ptt INNER JOIN course_table as ct ON ptt.course_id = ct.course_id ';
     db3.query(readQuery, (err, result) => {
         if (err) return res.status(500).send(err);
         res.status(200).send(result);
@@ -432,6 +428,7 @@ app.get('/get_semester', (req, res) => {
     });
 });
 
+// INSERT SELECTED ENROLLED SUBJECT (NEW!!)
 app.post('/enrolled_subject', (req, res) => {
     const {curriculum_id, course_id, student_number_id} = req.body;
     
@@ -439,11 +436,29 @@ app.post('/enrolled_subject', (req, res) => {
 
     db3.query(insertQuery, [curriculum_id, course_id, student_number_id], (err,result) => {
         if (err) return res.status(500).send(err);
-        res.status(200).send(result);
+        res.status(200).send(result);   
     });
 });
 
+// INSERT ALL ENROLLED SUBJECT (NEW!!)
+app.post('/enrolled_all_subjects', (req, res) => {
+    const {curriculum_id, course_ids, student_number_id, semester, year_level} = req.body;
+    if(semester === 1 && year_level === 1){
 
+    
+    const insertQuery = 'INSERT INTO enrolled_subject (curriculum_id, course_id, student_number, active_school_year_id)  VALUES ?';
+
+    const values = course_ids.map(course_id => [curriculum_id, course_id, student_number_id, ,null]);
+
+
+    db3.query(insertQuery, [values], (err,result) => {
+        if (err) return res.status(500).send(err);
+        res.status(200).send(result);
+    });
+} else { res.status(400).json({ message: "No subjects to enroll for the selected semester and year level." });}
+});
+
+// ENROLLED SUBJECT LIST (NEW!!)
 app.get('/enrolled_subject_list', (req, res) => {
     const studentID = req.query.studentID;
 
@@ -467,6 +482,7 @@ app.get('/enrolled_subject_list', (req, res) => {
     });
 });
 
+// DELETE SELECTED ENROLLED SUBJECT (NEW!!)
 app.delete('/remove_enrolled_subjects/:id', (req, res) => {
     const {id} = req.params;
 
@@ -481,6 +497,23 @@ app.delete('/remove_enrolled_subjects/:id', (req, res) => {
     });
 });
 
+// DELETE ALL ENROLLED SUBJECT (NEW!!)
+app.delete('/remove_all_enrolled_subjects', (req, res) => {
+    const { student_number_id, curriculum_id } = req.body;
+
+    const deleteQuery = `
+        DELETE FROM enrolled_subject 
+        WHERE student_number = ? AND curriculum_id = ?
+    `;
+
+    db3.query(deleteQuery, [student_number_id, curriculum_id], (err, result) => {
+        if (err) {
+            console.error('Delete error:', err);
+            return res.status(500).json({ message: 'Error removing all enrolled subjects.' });
+        }
+        res.status(200).json({ message: 'All enrolled subjects removed.', result });
+    });
+});
 
 
 
@@ -582,7 +615,7 @@ app.post('/department_section', (req, res) => {
 
 // PROFFESOR REGISTRATION
 app.post('/register_prof', async (req, res) => {
-    const {fname, mname, lname, email, password, department_id} = req.body;
+    const {fname, mname, lname, email, password} = req.body;
 
     const hashedProfPassword = await bcrypt.hash(password, 10);
     
@@ -590,16 +623,99 @@ app.post('/register_prof', async (req, res) => {
     
     db3.query(queryForProf, [fname, mname, lname, email, hashedProfPassword, 0], (err, result)=>{
         if (err) return res.status(500).send(err);
+        res.status(200).send(result);
+        // const profID = result.insertId
+        // const queryProfDepartment = 'INSERT INTO dprtmnt_profs_table (dprtmnt_id, prof_id) VALUES (?,?)';
         
-        const profID = result.insertId
-        const queryProfDepartment = 'INSERT INTO dprtmnt_profs_table (dprtmnt_id, prof_id) VALUES (?,?)';
-        
-        db3.query(queryProfDepartment, [department_id, profID],(err, profDepartmentResult) => {
-            if(err) return res.status(500).send(err);
-            res.status(200).send(profDepartmentResult);
-        });
+        // db3.query(queryProfDepartment, [department_id, profID],(err, profDepartmentResult) => {
+        //     if(err) return res.status(500).send(err);
+        //     res.status(200).send(profDepartmentResult);
+        // });
+
     });
 });
+
+app.post("/login_prof", (req, res) => {
+    const { email, password } = req.body;
+  
+    if (!email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+  
+    const sql = `SELECT prof_table.*, time_table.*
+    FROM prof_table
+    INNER JOIN time_table ON prof_table.prof_id = time_table.professor_id
+    WHERE prof_table.email = ?`;
+    db3.query(sql, [email], async (err, results) => {
+      if (err || results.length === 0) {
+        return res.status(400).json({ message: "Invalid username or password" });
+      }
+  
+      const user = results[0];
+      const isMatch = await bcrypt.compare(password, user.password);
+  
+      if (!isMatch) {
+        return res.status(400).json({ message: "Invalid username or password" });
+      }
+  
+      const token = webtoken.sign(
+        { prof_id: user.prof_id, fname: user.fname, mname: user.mname, lname: user.lname, email: user.email, school_year_id: user.school_year_id},  // role is included in the token
+        process.env.JWT_SECRET,
+        { expiresIn: "1h" }
+      );
+  
+      // Log to confirm that role is included in the response
+      console.log("Login response:", { token, prof_id: user.prof_id, email: user.email, });
+  
+      const mappings = results.map(row => ({
+        department_section_id: row.department_section_id,
+        subject_id: row.subject_id
+      }));
+
+      res.json({
+        message: "Login successful",
+        token,
+        prof_id: user.prof_id,
+        fname: user.fname, 
+        mname: user.mname, 
+        lname: user.lname, 
+        email: user.email,
+        subject_section_mappings: mappings,
+        school_year_id: user.school_year_id
+      });
+    });
+  });
+
+  app.get('/get_enrolled_students/:subject_id/:department_section_id/:active_school_year_id', (req, res) => {
+    const { subject_id, department_section_id, active_school_year_id } = req.params;
+    console.log(subject_id)
+    console.log(active_school_year_id)
+    console.log(department_section_id)
+    const filterStudents = `
+      SELECT time_table.*, enrolled_subject.*
+      FROM time_table
+      INNER JOIN enrolled_subject
+      ON time_table.subject_id = enrolled_subject.subject_id
+      AND time_table.department_section_id = enrolled_subject.department_section_id
+      AND time_table.school_year_id = enrolled_subject.active_school_year_id
+      WHERE time_table.subject_id = ? AND time_table.department_section_id = ? AND time_table.school_year_id = ?
+    `;
+  
+    db3.query(filterStudents, [subject_id, department_section_id, active_school_year_id], (err, result) => {
+      if (err) {
+        console.error("Query failed:", err);
+        return res.status(500).json({ message: "Server error while fetching students." });
+      }
+  
+      if (result.length === 0) {
+        return res.status(404).json({ message: "No students found for this subject-section combo." });
+      }
+  
+      res.json(result);
+    });
+  });
+  
+
 
 // PROFESSOR LIST
 app.get('/get_prof', (req, res) => {

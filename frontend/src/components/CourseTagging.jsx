@@ -85,6 +85,29 @@ const CourseTagging = () => {
             alert("Something went wrong while tagging the course.");
         }
     };
+
+    // const handleTagAllCourses = async () => {
+    //     if (!enrolledStudent) return;
+    
+    //     const courseIds = filteredCourseList.map(course => course.course_id);
+    //     const body = {
+    //         curriculum_id: enrolledStudent.curriculum_id,
+    //         student_number_id: enrolledStudent.student_id,
+    //         course_ids: courseIds,
+    //         year_level: 1,
+    //         semester: 1,
+            
+            
+    //     };
+    
+    //     try {
+    //         await axios.post('http://localhost:5000/enrolled_all_subjects', body);
+    //         setEnrolledSubjects(prev => [...prev, ...filteredCourseList]);
+    //     } catch (err) {
+    //         console.error("Error tagging all courses:", err);
+    //         alert("Something went wrong while tagging all courses.");
+    //     }
+    // };
     
     const handleRemoveSubject = async (id) => {
         try {
@@ -94,6 +117,57 @@ const CourseTagging = () => {
         } catch (err) {
             console.error("Error removing subject:", err);
             alert("Something went wrong while removing the subject.");
+        }
+    };
+
+
+    const handleTagAllCourses = async () => {
+        if (!enrolledStudent) return;
+    
+        const courseIds = filteredCourseList.map(course => course.course_id);
+    
+        const body = {
+            curriculum_id: enrolledStudent.curriculum_id,
+            student_number_id: enrolledStudent.student_id,
+            course_ids: courseIds,
+            year_level: 1,
+            semester: 1,
+        };
+    
+        try {
+            const response = await axios.post('http://localhost:5000/enrolled_all_subjects', body);
+            
+            // If the backend sends success, update enrolled subjects
+            setEnrolledSubjects(prev => [...prev, ...filteredCourseList]);
+            alert("Subjects enrolled successfully!");
+        } catch (err) {
+            // If the backend sends a 400 error, show the message
+            if (err.response && err.response.data && err.response.data.message) {
+                alert(err.response.data.message);
+            } else {
+                console.error("Error tagging all courses:", err);
+                alert("Something went wrong while tagging all courses.");
+            }
+        }
+    };
+    
+
+
+    const handleRemoveAllSubjects = async () => {
+        if (!enrolledStudent) return;
+    
+        const body = {
+            curriculum_id: enrolledStudent.curriculum_id,
+            student_number_id: enrolledStudent.student_id
+        };
+    
+        try {
+            await axios.delete('http://localhost:5000/remove_all_enrolled_subjects', { data: body });
+            setEnrolledSubjects([]);
+            alert("All enrolled subjects removed.");
+        } catch (err) {
+            console.error("Error removing all subjects:", err);
+            alert("Something went wrong while removing all subjects.");
         }
     };
 
@@ -122,10 +196,15 @@ const CourseTagging = () => {
                         width: 'fit-content',
                         border: '1px black solid'
                     }}>
-                        <div>
-                            {enrolledStudent.last_name}, {enrolledStudent.first_name || 'N/A'} {enrolledStudent.middle_name || 'N/A'}  || Student Number: {enrolledStudent.student_id}<br />
-                            {enrolledStudent.year_description}-{enrolledStudent.program_description}
-                       </div>
+                        <div style={{display: 'flex', alignItems: 'center'}}>
+                            <div>
+                                {enrolledStudent.last_name}, {enrolledStudent.first_name || 'N/A'} {enrolledStudent.middle_name || 'N/A'}  || Student Number: {enrolledStudent.student_id}<br />
+                                {enrolledStudent.year_description}-{enrolledStudent.program_description}
+                            </div>
+                            <div>
+                                <button style={{marginLeft: '1rem', transform: 'scale(0.9)'}} onClick={handleRemoveAllSubjects}>Delete All</button>
+                            </div>
+                        </div>
                        <Table>
                             <TableHead sx={{width: 'fit-content'}}>
                                 <TableRow sx={{width: 'fit-content'}}>
@@ -154,12 +233,14 @@ const CourseTagging = () => {
                 )}
             </div>
             <div>
+                <button onClick={handleTagAllCourses}>Add All</button>
                 <TableContainer component={Paper} sx={{ maxHeight: 400, overflow: 'auto', background: 'transparent'}}>
                     <Table stickyHeader sx={{ background: 'transparent'}}>
                         <TableHead sx={{ width: 'fit-content', background: 'transparent' }} >
                             <TableRow sx={{ width: 'fit-content' }}>
                                 <TableCell sx={{ borderStyle: 'solid', borderColor:'black', borderWidth: '1px 0px 1px 1px', textAlign: 'center' }}>Course<br /> Code</TableCell>
                                 <TableCell sx={{ borderStyle: 'solid', borderColor:'black', borderWidth: '1px 0px 1px 1px', textAlign: 'center' }}>Course <br /> Description</TableCell>
+                                <TableCell sx={{ borderStyle: 'solid', borderColor:'black', borderWidth: '1px 0px 1px 1px', textAlign: 'center' }}> Year Level ID</TableCell>
                                 <TableCell sx={{ borderStyle: 'solid', borderColor:'black', borderWidth: '1px 0px 1px 1px', textAlign: 'center' }}>Tag Subject <br /> Action</TableCell>
                             </TableRow>
                         </TableHead>
@@ -168,6 +249,7 @@ const CourseTagging = () => {
                                 <TableRow key={course.course_id} value={course.course_id}>
                                     <TableCell sx={{ borderStyle: 'solid', borderColor:'black', borderWidth: '0px 0px 1px 1px', textAlign: 'center' }}>{course.course_code}</TableCell>
                                     <TableCell sx={{ borderStyle: 'solid', borderColor:'black', borderWidth: '0px 0px 1px 1px', textAlign: 'center' }}>{course.course_description}</TableCell>
+                                    <TableCell sx={{ borderStyle: 'solid', borderColor:'black', borderWidth: '0px 0px 1px 1px', textAlign: 'center' }}>{course.year_level_id}</TableCell>
                                     <TableCell sx={{ borderStyle: 'solid', borderColor:'black', borderWidth: '0px 0px 1px 1px', textAlign: 'center' }}>
                                         <button style={{background: 'maroon', color: 'white'}} onClick={() => handleTagCourse(course)}>Tag</button> {/* Add a button or any action here */}
                                     </TableCell>
